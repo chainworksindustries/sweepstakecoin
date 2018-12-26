@@ -161,40 +161,41 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake, int64_t* pFees)
     // a transaction spammer can cheaply fill blocks using
     // 1-satoshi-fee transactions. It should be set above the real
     // cost to you of processing a transaction.
+
     int64_t nMinTxFee = MIN_TX_FEE;
     if (mapArgs.count("-mintxfee"))
         ParseMoney(mapArgs["-mintxfee"], nMinTxFee);
 
-	pblock->nSuperBlock = pindexPrev->nSuperBlock;
-	if (pblock->nSuperBlock < nSuperBlockMinimum)
-		pblock->nSuperBlock = nSuperBlockMinimum;
+    pblock->nSuperBlock = pindexPrev->nSuperBlock;
+    if (pblock->nSuperBlock < nSuperBlockMinimum)
+        pblock->nSuperBlock = nSuperBlockMinimum;
 
-	// Check if the previous block was a bonus block and create a reward tx if necessary
-	// The reward tx will be a copy of the bonus block coinbase tx with the outputs adjusted proportionally
-	int64_t nBonusReward = GetProofOfWorkBonusRewardFactor(pindexPrev);
+    // Check if the previous block was a bonus block and create a reward tx if necessary
+    // The reward tx will be a copy of the bonus block coinbase tx with the outputs adjusted proportionally
+    int64_t nBonusReward = GetProofOfWorkBonusRewardFactor(pindexPrev);
 
-	if (nBonusReward > 0)
-	{
+    if (nBonusReward > 0)
+    {
 		CBlock prevBlock;
 		prevBlock.ReadFromDisk(pindexPrev, true);
 
 		CTransaction txReward = prevBlock.vtx[0];
 		for (unsigned i = 0; i < txReward.vout.size(); i++)
 		{
-			txReward.vout[i].nValue *= nBonusReward;
-			txReward.vout[i].nValue /= 100;
+				txReward.vout[i].nValue *= nBonusReward;
+				txReward.vout[i].nValue /= 100;
 		}
 
 		// Add bonus block reward tx
 		pblock->vtx.push_back(txReward);
 		pblock->nSuperBlock = pindexPrev->nHeight + 1;
 		if (pblock->nSuperBlock < nSuperBlockMinimum) {
-			pblock->nSuperBlock = nSuperBlockMinimum;
+				pblock->nSuperBlock = nSuperBlockMinimum;
 		}
 		else {
-			nSuperBlockMinimum = pblock->nSuperBlock;
+				nSuperBlockMinimum = pblock->nSuperBlock;
 		}
-	}
+    }
 
     pblock->nBits = GetNextTargetRequired(pindexPrev, fProofOfStake);
 
@@ -387,7 +388,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake, int64_t* pFees)
         nLastBlockSize = nBlockSize;
 
         if (fDebug && GetBoolArg("-printpriority"))
-            printf("CreateNewBlock(): total size %"PRIu64"\n", nBlockSize);
+            printf("CreateNewBlock(): total size %lu\n", nBlockSize);
 
         if (!fProofOfStake)
 			pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees, pindexPrev);
@@ -483,21 +484,21 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     if(!pblock->IsProofOfWork())
         return error("CheckWork() : %s is not a proof-of-work block", hashBlock.GetHex().c_str());
 
-	if (hashBlock > hashTarget) {
-		if (fDebug) {
-			printf("Version   : %.8x\n", pblock->nVersion);
-			printf("Hash      : %s\n", pblock->hashPrevBlock.GetHex().c_str());
-			printf("Merkle    : %s\n", pblock->hashMerkleRoot.GetHex().c_str());
-			printf("Time      : %.8x\n", pblock->nTime);
-			printf("Bits      : %.8x\n", pblock->nBits);
-			printf("Nonce     : %.8x\n", pblock->nNonce);
-			printf("SuperBock : %.8x\n", pblock->nSuperBlock);
-			printf("RoundMask : %.8x\n", pblock->nRoundMask);
-			printf("Result    : %s\n", hashBlock.GetHex().c_str());
-			printf("Target    : %s\n", hashTarget.GetHex().c_str());
-		}
-		return error("CheckWork() : proof-of-work not meeting target");
-	}
+    if (hashBlock > hashTarget) {
+			if (fDebug) {
+					printf("Version   : %.8x\n", pblock->nVersion);
+					printf("Hash      : %s\n", pblock->hashPrevBlock.GetHex().c_str());
+					printf("Merkle    : %s\n", pblock->hashMerkleRoot.GetHex().c_str());
+					printf("Time      : %.8x\n", pblock->nTime);
+					printf("Bits      : %.8x\n", pblock->nBits);
+					printf("Nonce     : %.8x\n", pblock->nNonce);
+					printf("SuperBock : %.8x\n", pblock->nSuperBlock);
+					printf("RoundMask : %.8x\n", pblock->nRoundMask);
+					printf("Result    : %s\n", hashBlock.GetHex().c_str());
+					printf("Target    : %s\n", hashTarget.GetHex().c_str());
+			}
+			return error("CheckWork() : proof-of-work not meeting target");
+    }
 
     // debug print
     printf("CheckWork() : new proof-of-work block found  \n  hash: %s  \ntarget: %s\n", hashBlock.GetHex().c_str(), hashTarget.GetHex().c_str());
